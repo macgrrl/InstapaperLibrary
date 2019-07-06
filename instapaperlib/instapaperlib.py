@@ -49,15 +49,30 @@ import urllib2
 class Instapaper:
     """ This class provides the structure for the connection object """
 
+    @staticmethod
+    def instapaper_url(https=True):
+        """
+        returns the Instapaper API URL
+        NOTE: always uses https
+        
+        >>> Instapaper.instapaper_url()
+        'https://www.instapaper.com/api/'
+        
+        >>> Instapaper.instapaper_url(https=True)
+        'https://www.instapaper.com/api/'
+        
+        >>> Instapaper.instapaper_url(https=False)
+        'https://www.instapaper.com/api/'
+        """
+        return "https://www.instapaper.com/api/"
+        
     def __init__(self, user, password, https=True):
+        i_url = self.instapaper_url(https)
         self.user = user
         self.password = password
-        if https:
-            self.authurl = "https://www.instapaper.com/api/authenticate"
-            self.addurl = "https://www.instapaper.com/api/add"
-        else:
-            self.authurl = "http://www.instapaper.com/api/authenticate"
-            self.addurl = "http://www.instapaper.com/api/add"
+ 
+        self.authurl = i_url + "authenticate"
+        self.addurl = i_url + "add"
 
         self.add_status_codes = {
                                       201 : "URL successfully added.",
@@ -188,4 +203,4 @@ class NoUrlError(Exception):
 
 if __name__ == '__main__':
     import doctest
-    doctest.testmod()
+    doctest.testmod(verbose=True)
