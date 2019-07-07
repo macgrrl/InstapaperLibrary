@@ -36,7 +36,7 @@
 'callBack({"status":200})'
 
 >>> Instapaper("instapaperlibi", "").auth(jsonp="callBack")
-'callBack({"status":403})'
+'403'
 
 >>> Instapaper("instapaperlib", "").add_item("google.com", "google", redirect="close")
 (201, 'URL successfully added.')
