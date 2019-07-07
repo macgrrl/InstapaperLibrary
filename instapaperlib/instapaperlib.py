@@ -43,8 +43,10 @@
 
 '''
 
-import urllib
-import urllib2
+import requests
+
+#import urllib
+#import urllib2
 
 class Instapaper:
     """ This class provides the structure for the connection object """
@@ -54,23 +56,23 @@ class Instapaper:
         """
         returns the Instapaper API URL
         NOTE: always uses https
-        
+
         >>> Instapaper.instapaper_url()
         'https://www.instapaper.com/api/'
-        
+
         >>> Instapaper.instapaper_url(https=True)
         'https://www.instapaper.com/api/'
-        
+
         >>> Instapaper.instapaper_url(https=False)
         'https://www.instapaper.com/api/'
         """
         return "https://www.instapaper.com/api/"
-        
+
     def __init__(self, user, password, https=True):
         i_url = self.instapaper_url(https)
         self.user = user
         self.password = password
- 
+
         self.authurl = i_url + "authenticate"
         self.addurl = i_url + "add"
 
@@ -131,10 +133,10 @@ class Instapaper:
                         password -> password
             Returns: (status as int, status error message)
         """
-        if not user:
-            user = self.user
-        if not password:
-            password = self.password
+        if user != None:
+            self.user = user
+        if password != None:
+            self.password = password
         parameters = {
                       'username' : self.user,
                       'password' : self.password
@@ -161,34 +163,54 @@ class Instapaper:
             raise NoUrlError("No URL was provided.")
         # return values
         headers = {'location': None, 'title': None}
-        headerdata = urllib.urlencode(params)
-        try:
-            request = urllib2.Request(url, headerdata)
-            response = urllib2.urlopen(request)
-            # return numeric HTTP status code unless JSONP was requested
-            if 'jsonp' in params:
-                status = response.read()
-            else:
-                status = response.getcode()
-            info = response.info()
+        response = requests.get(url, params=params, headers=headers)
 
-            try:
-                headers['location'] = info['Content-Location']
-            except KeyError:
-                pass
-            try:
-                headers['title'] = info['X-Instapaper-Title']
-            except KeyError:
-                pass
-            return (status, headers)
-        except urllib2.HTTPError as exception:
-            # handle API not returning JSONP response on 403
-            if 'jsonp' in params:
-                return ('%s({"status":%d})' % (params['jsonp'], exception.code), headers)
-            else:
-                return (exception.code, headers)
-        except IOError as exception:
-            return (exception.code, headers)
+        if 'jsonp' in params:
+            status = response.content
+        else:
+            status = response.status_code
+
+        headers = response.headers
+
+        try:
+            headers['location'] = response.headers['Content-Location']
+        except KeyError:
+            pass
+        try:
+            headers['title'] = response.headers['X-Instapaper-Title']
+        except KeyError:
+            pass
+
+        return (status, headers)
+
+        #headerdata = urllib.urlencode(params)
+        #try:
+            #request = urllib2.Request(url, headerdata)
+            #response = urllib2.urlopen(request)
+            ## return numeric HTTP status code unless JSONP was requested
+            #if 'jsonp' in params:
+                #status = response.read()
+            #else:
+                #status = response.getcode()
+            #info = response.info()
+
+            #try:
+                #headers['location'] = info['Content-Location']
+            #except KeyError:
+                #pass
+            #try:
+                #headers['title'] = info['X-Instapaper-Title']
+            #except KeyError:
+                #pass
+            #return (status, headers)
+        #except urllib2.HTTPError as exception:
+            ## handle API not returning JSONP response on 403
+            #if 'jsonp' in params:
+                #return ('%s({"status":%d})' % (params['jsonp'], exception.code), headers)
+            #else:
+                #return (exception.code, headers)
+        #except IOError as exception:
+            #return (exception.code, headers)
 
 # instapaper specific exceptions
 class NoUrlError(Exception):
