@@ -36,7 +36,7 @@
 'callBack({"status":200})'
 
 >>> Instapaper("instapaperlibi", "").auth(jsonp="callBack")
-'403'
+(403, 'Invalid username or password.')
 
 >>> Instapaper("instapaperlib", "").add_item("google.com", "google", redirect="close")
 (201, 'URL successfully added.')
@@ -148,7 +148,7 @@ class Instapaper:
             parameters['jsonp'] = jsonp
         status, headers = self._query(self.authurl, parameters)
         # return the callback call if we want jsonp
-        if jsonp is not None:
+        if jsonp is not None and isinstance(status, int) is False:
             return status
         return (int(status), self.auth_status_codes[int(status)])
 
@@ -173,6 +173,9 @@ class Instapaper:
                 status = response.content.decode('utf-8') # binary decode for Python 3
             else:
                 status = response.content
+            if status.isdigit():
+                # numeric status code
+                status = int(status)
         else:
             status = response.status_code
 
