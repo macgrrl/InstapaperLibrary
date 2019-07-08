@@ -44,12 +44,15 @@
 '''
 
 import requests
+import sys
 
 #import urllib
 #import urllib2
 
 class Instapaper:
     """ This class provides the structure for the connection object """
+
+    python3_flag = sys.version_info >= (3, 0)
 
     @staticmethod
     def instapaper_url(https=True):
