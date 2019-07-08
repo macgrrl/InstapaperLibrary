@@ -166,7 +166,10 @@ class Instapaper:
         response = requests.get(url, params=params, headers=headers)
 
         if 'jsonp' in params:
-            status = response.content
+            if self.python3_flag:
+                status = response.content.decode('utf-8') # binary decode for Python 3
+            else:
+                status = response.content
         else:
             status = response.status_code
 
